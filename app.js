@@ -11,6 +11,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var config = require('./config.js');
+var twitterconfig = require('./twitter.config');
 
 var app = express();
 app.use(express.basicAuth('algoraves', 'rock'));

@@ -18,30 +18,31 @@ var cursor = {
     }
 
 $(function(){
-    //init buttons
-    $('#button').click(function(){
-        console.log("clickedy");
-        $.post( '/buttondata', 100)
-    });
+    // //init buttons
+    // $('#button').click(function(){
+    //     console.log("clickedy");
+    //     $.post( '/buttondata', 100)
+    // });
 
-	// listen to socket
+    // $("#svgcontainer").css("transform", "scale(1.0)")
+    // drawrect(rect);
+
+
+ 	w = $(window).width();
+ 	h = $(window).height();
 	svg = d3.select("#svgcontainer").append("svg")
     .attr("width", w)
     .attr("height", h)
     .attr('class','foreground')
     .style("pointer-events", "all");
 
-    $("#svgcontainer").css("transform", "scale(1.0)")
-    // drawrect(rect);
-
     $('#input').on('keydown', function(e) {
-	if (e.which == 13) {
-		console.log("entered");
-		parseCommand();
-		e.preventDefault();
-	}
-
-});
+		if (e.which == 13) {
+			console.log("entered");
+			parseCommand();
+			e.preventDefault();
+		}
+	});
 
 });
 
