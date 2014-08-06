@@ -11,20 +11,16 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var config = require('./config.js');
-var twitterconfig = require('./twitter.config');
-var passport = require('passport')
-  , TwitterStrategy = require('passport-twitter').Strategy;
-
+var twitterconfig = require('./twitter.config.js');
+var passport = require('passport');
+var TwitterStrategy = require('passport-twitter').Strategy;
 passport.use(new TwitterStrategy({
-    consumerKey: twitterconfig.consumerKey,
-    consumerSecret: twitterconfig.consumerSecret,
+    consumerKey: twitterconfig.twitter.consumerKey,
+    consumerSecret: twitterconfig.twitter.consumerSecret,
     callbackURL: "http://sandbox.halic.be:3000/auth/twitter/callback"
   },
   function(token, tokenSecret, profile, done) {
-    User.findOrCreate(..., function(err, user) {
-      if (err) { return done(err); }
-      done(null, user);
-    });
+    console.log(profile);
   }
 ));
 var app = express();
