@@ -12,7 +12,21 @@ var users = require('./routes/users');
 
 var config = require('./config.js');
 var twitterconfig = require('./twitter.config');
+var passport = require('passport')
+  , TwitterStrategy = require('passport-twitter').Strategy;
 
+passport.use(new TwitterStrategy({
+    consumerKey: twitterconfig.consumerKey,
+    consumerSecret: twitterconfig.consumerSecret,
+    callbackURL: "http://sandbox.halic.be:3000/auth/twitter/callback"
+  },
+  function(token, tokenSecret, profile, done) {
+    User.findOrCreate(..., function(err, user) {
+      if (err) { return done(err); }
+      done(null, user);
+    });
+  }
+));
 var app = express();
 app.use(express.basicAuth('algoraves', 'rock'));
 
@@ -28,8 +42,13 @@ app.use(cookieParser());
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/auth/twitter', passport.authenticate('twitter'));
+app.get('/auth/twitter/callback',
+  passport.authenticate('twitter', { successRedirect: '/',
+                                     failureRedirect: '/login' }));
 app.use('/', routes);
 app.use('/users', users);
+
 
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
