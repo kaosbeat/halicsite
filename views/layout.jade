@@ -1,0 +1,18 @@
+doctype html
+html
+    head
+        title= title
+        meta(name='author', lang='nl', content='kasper@kaotec.org')
+        meta(name='copyright', lang='nl', content='Copyright 2014 kaotec')
+        block stylesheet
+            link(rel='stylesheet', href='/stylesheets/style.css')
+            link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+
+        block script
+            script(type='text/javascript', src='/javascripts/jquery-2.1.1.min.js')
+            script(type='text/javascript', src='/javascripts/d3.v3.min.js')
+            script(type='text/javascript', src='/javascripts/bootstrap.min.js')
+            // script(type='text/javascript', src='/socket.io/socket.io.js')
+            script(type='text/javascript', src='/javascripts/global.js')
+    body
+        block content
