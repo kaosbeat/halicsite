@@ -11,19 +11,23 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var config = require('./config.js');
-var twitterconfig = require('./twitter.config.js');
-var passport = require('passport');
-var TwitterStrategy = require('passport-twitter').Strategy;
-passport.use(new TwitterStrategy({
-    consumerKey: twitterconfig.twitter.consumerKey,
-    consumerSecret: twitterconfig.twitter.consumerSecret,
-    callbackURL: "http://sandbox.halic.be:3000/auth/twitter/callback"
-  },
-  function(token, tokenSecret, profile, done) {
-    console.log(profile);
-  }
-));
+// var twitterconfig = require('./twitter.config.js');
+// var passport = require('passport');
+// var TwitterStrategy = require('passport-twitter').Strategy;
+// passport.use(new TwitterStrategy({
+//     consumerKey: twitterconfig.twitter.consumerKey,
+//     consumerSecret: twitterconfig.twitter.consumerSecret,
+//     callbackURL: "http://sandbox.halic.be:3000/auth/twitter/callback"
+//   },
+//   function(token, tokenSecret, profile, done) {
+//     console.log(profile);
+//   }
+// ));
 var app = express();
+var http = require('http').Server(app);
+// var socketio = require('socket.io')
+app.http().io()
+
 app.use(express.basicAuth('algoraves', 'rock'));
 
 // view engine setup
@@ -38,10 +42,10 @@ app.use(cookieParser());
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/auth/twitter', passport.authenticate('twitter'));
-app.get('/auth/twitter/callback',
-  passport.authenticate('twitter', { successRedirect: '/',
-                                     failureRedirect: '/login' }));
+// app.get('/auth/twitter', passport.authenticate('twitter'));
+// app.get('/auth/twitter/callback',
+//     passport.authenticate('twitter', { successRedirect: '/',
+//                                      failureRedirect: '/login' }));
 app.use('/', routes);
 app.use('/users', users);
 
@@ -81,11 +85,11 @@ app.use(function(err, req, res, next) {
 module.exports = app;
 
 
-// app.io.route('command', {
-//     create: function(req) {
-//         console.log("creating command in database");
-//     },
-//     get: function(req) {
-//         console.log("getting command in database");
-//     }
-// });
+app.io.route('command', {
+    create: function(req) {
+        console.log("creating command in database");
+    },
+    get: function(req) {
+        console.log("getting command in database");
+    }
+});
