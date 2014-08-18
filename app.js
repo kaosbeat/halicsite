@@ -4,14 +4,31 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-// var mongoose = require('mongoose');
 var mongojs = require('mongojs');
 var passport = require('passport');
 var routes = require('./routes/index');
+var dbroute = require('./routes/db');
 var users = require('./routes/users');
-
 var config = require('./config.js');
-// var twitterconfig = require('./twitter.config.js');
+var OAuth       = require('oauth').OAuth;
+var querystring = require('querystring');
+var twitterconfig = require('./twitter.config.js');
+
+
+console.log(twitterconfig);
+// authentication for other twitter requests
+var twitterOAuth = new OAuth(
+    "https://api.twitter.com/oauth/request_token",
+    "https://api.twitter.com/oauth/access_token",
+    twitterconfig.twitter.consumerKey,
+    twitterconfig.twitter.consumerSecret,
+    "1.0",
+    null,
+    "HMAC-SHA1"
+);
+
+
+
 // var passport = require('passport');
 // var TwitterStrategy = require('passport-twitter').Strategy;
 // passport.use(new TwitterStrategy({
@@ -47,7 +64,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //     passport.authenticate('twitter', { successRedirect: '/',
 //                                      failureRedirect: '/login' }));
 app.use('/', routes);
-app.use('/users', users);
+// app.use('/db', dbroute);
 
 
 /// catch 404 and forwarding to error handler
@@ -82,9 +99,6 @@ app.use(function(err, req, res, next) {
 });
 
 
-module.exports = app;
-
-
 app.io.route('command', {
     create: function(req) {
         console.log("creating command in database");
@@ -93,3 +107,48 @@ app.io.route('command', {
         console.log("getting command in database");
     }
 });
+
+
+init();
+
+module.exports = app;
+
+function init(){
+    listenForTweets();
+}
+
+
+function listenForTweets(){
+    // 2.) Luister ook naar nieuwe pictures die binnenkomen:
+    var parameters = querystring.stringify({
+        track: twitterconfig.app.searchterms.join(',')
+    });
+
+    var twitterhose = twitterOAuth.get('https://stream.twitter.com/1.1/statuses/filter.json?' + parameters, twitterconfig.twitter.token, twitterconfig.twitter.secret);
+    twitterhose.addListener('response', function (res){
+        console.log("searchhose started");
+        res.setEncoding('utf8');
+        res.addListener('data', function (chunk){
+            try{
+                var tweet = JSON.parse(chunk);
+                console.log(tweet);
+                // extract picture urls:
+                getPictureUrlsFromTweet(tweet, function (err, pictures){
+                    if(err) return console.log(err);
+
+                    for(var i in pictures)
+                        addPicture(pictures[i], State.importantpictures);
+                });
+            }catch(err){}
+        });
+
+        res.addListener('end', function(){
+            console.log("Twitterhose broke down");
+        });
+    });
+    twitterhose.end();
+}
+
+
+
+

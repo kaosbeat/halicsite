@@ -17,6 +17,8 @@
     "passport": "^0.1.18",
     "passport-twitter": "^1.0.2",
     "mongojs": "^0.13.1",
-    "express.io": "^1.1.13"
+    "express.io": "^1.1.13",
+    "httpreq": "^0.4.2",
+    "oauth": "^0.9.12"
   }
 }
