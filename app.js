@@ -1,4 +1,3 @@
-var express = require('express.io');
 var path = require('path');
 var favicon = require('static-favicon');
 var logger = require('morgan');
@@ -13,6 +12,7 @@ var config = require('./config.js');
 var OAuth       = require('oauth').OAuth;
 var querystring = require('querystring');
 var twitterconfig = require('./twitter.config.js');
+var async = require('async');
 
 
 console.log(twitterconfig);
@@ -64,7 +64,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //     passport.authenticate('twitter', { successRedirect: '/',
 //                                      failureRedirect: '/login' }));
 app.use('/', routes);
-// app.use('/db', dbroute);
+app.use('/db', dbroute);
 
 
 /// catch 404 and forwarding to error handler
@@ -105,6 +105,9 @@ app.io.route('command', {
     },
     get: function(req) {
         console.log("getting command in database");
+        app.io.broadcast('command', {
+            message: 'r x 100 c x 300 r'
+        })
     }
 });
 
@@ -115,6 +118,46 @@ module.exports = app;
 
 function init(){
     listenForTweets();
+    startSimpleSearch();
+    app.io.broadcast('command', {
+        message: 'r x 100 c y 200 r'
+    })
+}
+
+function startSimpleSearch(){
+    // 1.) Zoek naar pictures met bepaald hashtag:
+    var parameters = querystring.stringify({
+        q: twitterconfig.app.searchterms.join(' OR '),
+        result_type: 'mixed',
+        count: 100,
+        include_entities: true
+    });
+
+    twitterOAuth.getProtectedResource('https://api.twitter.com/1.1/search/tweets.json?' + parameters, "GET", twitterconfig.twitter.token, twitterconfig.twitter.secret,
+        function (err, data, res){
+            if(err) return console.log(err);
+
+            data = JSON.parse(data);
+            var tweets = data.statuses;
+
+            async.forEach(tweets, function (tweet, c){
+                // getPictureUrlsFromTweet(tweet, function (err, pictures){
+                //     if(err) return c(err);
+
+                //     //console.log(pictures);
+
+                //     for(var i in pictures)
+                //         addPicture(pictures[i], State.importantpictures);
+
+                //     c(null);
+                // });
+                console.log(tweet.text);
+
+            }, function (err){
+                if(err) return console.log(err);
+            });
+        }
+    );
 }
 
 
@@ -133,12 +176,12 @@ function listenForTweets(){
                 var tweet = JSON.parse(chunk);
                 console.log(tweet);
                 // extract picture urls:
-                getPictureUrlsFromTweet(tweet, function (err, pictures){
-                    if(err) return console.log(err);
+                // getPictureUrlsFromTweet(tweet, function (err, pictures){
+                //     if(err) return console.log(err);
 
-                    for(var i in pictures)
-                        addPicture(pictures[i], State.importantpictures);
-                });
+                //     for(var i in pictures)
+                //         addPicture(pictures[i], State.importantpictures);
+                // });
             }catch(err){}
         });
 
@@ -149,6 +192,10 @@ function listenForTweets(){
     twitterhose.end();
 }
 
+
+function getBacklog(){
+
+}
 
 
 

@@ -1,3 +1,7 @@
 node_modules
 twitter.config.js
 npm-debug.log
+db/mongod.lock
+db/journal/j._0
+db/local.0
+db/local.ns

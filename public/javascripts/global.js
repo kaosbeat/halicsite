@@ -11,6 +11,10 @@ var AlgoDraw = function (options){
         "rgbstroke": '#000000'
     }
 	var init = function(){
+		// var io;
+			//realtime stuff
+		io = io.connect()
+		addHandlers();
 		//draw svg canvas
 		var w = 100, h = 100;
 
@@ -49,6 +53,16 @@ var AlgoDraw = function (options){
 
 
 	};
+
+	var addHandlers = function(){
+		io.on('command', function(data) {
+    		console.log(data);
+    		parseCommand(data.message)
+		});
+		$('#getCommand').click(function(){
+			io.emit('command:get', {a:1});
+		});
+	}
 
 	///drawfunctions
 	var drawLogo = function(){
@@ -138,8 +152,8 @@ var AlgoDraw = function (options){
 	}
 
 
-	var parseCommand = function(){
-		var command = $('#input').val()
+	var parseCommand = function(command){
+		if (!command) {var command = $('#input').val()};
 		consoletext(command);
 		command = command.split(' ');
 		console.log(command);
