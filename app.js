@@ -1,9 +1,11 @@
+var express = require('express.io');
 var path = require('path');
 var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongojs = require('mongojs');
+var db = mongojs('algotweets');
 var passport = require('passport');
 var routes = require('./routes/index');
 var dbroute = require('./routes/db');
@@ -117,8 +119,8 @@ init();
 module.exports = app;
 
 function init(){
-    listenForTweets();
-    startSimpleSearch();
+    // listenForTweets();
+    // startSimpleSearch();
     app.io.broadcast('command', {
         message: 'r x 100 c y 200 r'
     })
@@ -141,6 +143,16 @@ function startSimpleSearch(){
             var tweets = data.statuses;
 
             async.forEach(tweets, function (tweet, c){
+
+                //  var tweetcollection = db.collection('tweets');
+                //     tweetcollection.insert(tweet, function() {
+                //         // console.log(req.body._id);
+                //         app.io.broadcast('tweetcommand', {
+                //             tweet: tweet,
+                //             command: tweet.text
+                //         })
+                // });
+
                 // getPictureUrlsFromTweet(tweet, function (err, pictures){
                 //     if(err) return c(err);
 
@@ -175,6 +187,15 @@ function listenForTweets(){
             try{
                 var tweet = JSON.parse(chunk);
                 console.log(tweet);
+                var tweets = db.collection('tweets');
+                    tweets.insert(tweet, function() {
+                        // console.log(req.body._id);
+                        app.io.broadcast('tweetcommand', {
+                            tweet: tweet,
+                            command: tweet.text
+                        })
+                });
+
                 // extract picture urls:
                 // getPictureUrlsFromTweet(tweet, function (err, pictures){
                 //     if(err) return console.log(err);
